@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IReserveStateDao">
+    <sql id="baseColum">
+        rsid,rsname
+    </sql>
+    <select id="selectRStateByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select
+        <include refid="baseColum"></include>
+        from reserve_state
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                rsid = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and rsname = #{ds.name}
+            </if>
+        </where>
+        order by rsid
+    </select>
+
+    <select id="selectAllReserveState" resultType="reserveState">
+        select <include refid="baseColum"></include>
+        from reserve_state
+    </select>
+
+    <insert id="addReserveState" parameterType="reserveState">
+        insert into reserve_state(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{reserveState.rsname})
+    </insert>
+
+    <delete id="delReserveState" parameterType="String">
+        delete from reserve_state where rsid in(
+        <foreach collection="rsids" item="rsid" separator=",">
+            #{rsid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updReserveState" parameterType="reserveState">
+        update reserve_state set rsname=#{reserveState.rsname}
+        where rsid = #{reserveState.rsid}
+    </update>
+</mapper>

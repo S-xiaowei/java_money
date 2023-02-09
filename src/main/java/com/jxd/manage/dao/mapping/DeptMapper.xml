@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IDeptDao">
+    <sql id="baseColum">
+        did,dname
+    </sql>
+    <select id="selectDeptByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select <include refid="baseColum"></include>
+            from dept
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                did = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and dname = #{ds.name}
+            </if>
+        </where>
+        order by did
+    </select>
+
+    <select id="selectAllDept" resultType="dept">
+        select <include refid="baseColum"></include>
+        from dept
+    </select>
+
+    <insert id="addDept" parameterType="dept">
+        insert into dept(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{dept.dname})
+    </insert>
+
+    <delete id="delDept" parameterType="String">
+        DELETE dept,emp,user from dept LEFT JOIN emp ON dept.did=emp.did
+            left join user on emp.uid = user.uid
+        WHERE dept.did in(
+        <foreach collection="dids" item="did" separator=",">
+            #{did}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updDept" parameterType="dept">
+        update dept set dname=#{dpet.dname}
+        where did = #{dept.did}
+    </update>
+</mapper>

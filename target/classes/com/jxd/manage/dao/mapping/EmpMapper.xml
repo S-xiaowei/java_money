@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IEmpDao">
+    <sql id="baseColum">
+        eid,ename,sex,job,hiredate,did,uid
+    </sql>
+    <select id="selectEmpByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select e.eid,e.ename,e.sex,e.hiredate,e.did,d.dname,e.job from emp e
+        left join dept d on e.did=d.did
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                e.eid = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and e.ename = #{ds.name}
+            </if>
+            <if test="ds.did!=null and ds.did!=''">
+                and e.did = #{ds.did}
+            </if>
+        </where>
+        order by e.eid
+    </select>
+
+    <select id="selectAllEmp" resultType="emp">
+        select <include refid="baseColum"></include>
+        from emp
+    </select>
+
+    <insert id="addEmp" parameterType="emp" useGeneratedKeys="true" keyProperty="eid">
+        insert into emp(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{ename},#{sex},#{job},#{hiredate},#{did},#{uid})
+    </insert>
+
+    <delete id="delEmp" parameterType="String">
+        DELETE emp,user from emp LEFT JOIN user ON emp.uid=user.uid
+            WHERE emp.eid in(
+        <foreach collection="eids" item="eid" separator=",">
+            #{eid}
+    </foreach>
+        )
+    </delete>
+
+    <update id="updEmp" parameterType="emp" >
+        update emp set ename=#{emp.ename},sex=#{emp.sex},job=#{emp.job}
+                   ,hiredate=#{emp.hiredate},did=#{emp.did},uid=#{emp.uid}
+        where eid = #{emp.eid}
+    </update>
+
+    <select id="getEmpByUid" resultType="map">
+        select e.ename,e.eid,e.sex,e.hiredate,e.job,d.did,d.dname,u.uname,u.uid
+        from emp e left join dept d on e.did = d.did left join user u
+         on u.uid = e.uid where e.uid = #{uid}
+    </select>
+
+</mapper>

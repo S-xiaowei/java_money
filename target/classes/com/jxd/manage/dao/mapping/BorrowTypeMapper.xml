@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IBorrowTypeDao">
+    <sql id="baseColum">
+        tid,tname
+    </sql>
+    <select id="selectBTypeByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select
+        <include refid="baseColum"></include>
+        from borrow_type
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                tid = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and tname = #{ds.name}
+            </if>
+        </where>
+        order by tid
+    </select>
+
+    <select id="selectAllBorrowType" resultType="borrowType">
+        select <include refid="baseColum"></include>
+        from borrow_type
+    </select>
+
+    <insert id="addBorrowType" parameterType="borrowType">
+        insert into borrow_type(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{borrowType.tname})
+    </insert>
+
+    <delete id="delBorrowType" parameterType="String">
+        delete from borrow_type where tid in(
+        <foreach collection="tids" item="tid" separator=",">
+            #{tid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updBorrowType" parameterType="borrowType">
+        update borrow_type set tname=#{borrowType.tname}
+        where tid = #{borrowType.tid}
+    </update>
+</mapper>

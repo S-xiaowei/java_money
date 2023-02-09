@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IUserDao">
+    <sql id="baseColum">
+        uid,uname
+    </sql>
+    <select id="getUId" resultType="integer">
+        select uid from user
+        <where>
+        <if test="user.uname !=''">
+            uname = #{user.uname}
+        </if>
+        <if test="user.upassword !=''">
+            and upassword = #{user.upassword}
+        </if>
+        </where>
+    </select>
+
+    <select id="selectUserByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select
+            <include refid="baseColum"></include>
+            from user
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                uid = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and uname = #{ds.name}
+            </if>
+        </where>
+        order by uid
+    </select>
+
+    <select id="selectAllUser" resultType="user">
+        select <include refid="baseColum"></include>
+        from user
+    </select>
+    <select id="selectUser" parameterType="user" resultType="Integer">
+        select uid from user
+        where uid=#{uid} and upassword=#{upassword}
+    </select>
+
+    <insert id="addUser" parameterType="user"  useGeneratedKeys="true" keyProperty="uid" >
+        insert into user(
+        <include refid="baseColum"></include>,upassword
+        )
+        values (null,#{uname},#{upassword})
+    </insert>
+
+    <delete id="delUser" parameterType="String">
+        delete from user where uid in(
+        <foreach collection="uids" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updUser" parameterType="map">
+        update user set
+        <if test="user.newName!='' and user.newName!=null">
+        uname=#{user.newName}
+        </if>
+        <if test="user.newPassword!='' and user.newPassword!=null">
+        upassword=#{user.newPassword}
+         </if>
+        where
+        uid = #{user.uid}
+    </update>
+
+    <select id="selectUname" resultType="Integer">
+        select uid from user where uname=#{uname}
+    </select>
+    <update id="resertPwds" >
+        update user set upassword=123 where uid in(
+        <foreach collection="uids" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </update>
+</mapper>

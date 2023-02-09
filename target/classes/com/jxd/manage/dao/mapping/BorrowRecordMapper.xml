@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IBorrowRecordDao">
+    <sql id="baseColum">
+        bid,eid,bmoney,tid,bsid,btime,breason,bstill_money,bback_reason
+    </sql>
+    <select id="selectBorrowByPage" resultType="java.util.HashMap" parameterType="borrowDateSet">
+        select  br.bid,br.bstill_money,e.ename,br.eid,br.bmoney,bt.tname,bt.tid,br.btime
+             ,bs.bsid,bs.bsname ,br.breason ,d.dname,br.bback_reason from borrow_type bt
+        inner join borrow_record br on bt.tid = br.tid right join emp e on e.eid = br.eid
+        inner join borrow_state bs on br.bsid=bs.bsid  inner join dept d on e.did = d.did
+
+        <where>
+            <if test="ds.bid!=null and ds.bid!=''">
+                br.bid = #{ds.bid}
+            </if>
+            <if test="ds.tid!=null and ds.tid!=''">
+                and br.tid = #{ds.tid}
+            </if>
+            <if test="ds.eid!=null and ds.eid!=''">
+                and br.eid = #{ds.eid}
+            </if>
+            <if test="ds.bsid!=null and ds.bsid!=''">
+                and br.bsid = #{ds.bsid}
+            </if>
+            <if test="ds.btime!=null and ds.btime!=''">
+                and br.btime = #{ds.btime}
+            </if>
+            <if test="ds.did!=null and ds.did!=''">
+                and e.did = #{ds.did}
+            </if>
+        </where>
+        order by br.bid desc
+    </select>
+
+    <select id="getBorrowByBid" resultType="borrowRecord">
+        select <include refid="baseColum"></include>
+            form borrow_record
+            <where>
+                <if test="bid != null and bid != ''">
+                    bid=#{bid}
+                </if>
+            </where>
+    </select>
+
+    <insert id="addBorrow" parameterType="borrowRecord">
+        insert into borrow_Record(
+           <include refid="baseColum"></include>
+        )
+        values (null,#{borrowRecord.eid},#{borrowRecord.bmoney},#{borrowRecord.tid},#{borrowRecord.bsid},#{borrowRecord.btime},#{borrowRecord.breason},#{borrowRecord.bstillMoney},
+               #{borrowRecord.bbackReason} )
+    </insert>
+
+    <delete id="delBorrows" parameterType="list">
+        delete from borrow_record where bid in(
+        <foreach collection="bids" item="bid" separator=",">
+            #{bid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updBorrow" parameterType="borrowRecord">
+        update borrow_record set bmoney = #{borrowRecord.bmoney},
+                                 breason=#{borrowRecord.breason},
+                                 bsid=#{borrowRecord.bsid},
+                                 btime=#{borrowRecord.btime}
+                                ,bback_reason=#{borrowRecord.bbackReason}
+        where bid = #{borrowRecord.bid}
+    </update>
+
+    <update id="updBorrows" parameterType="borrowRecord">
+        update borrow_record set bsid=#{bsid}, bstill_money=#{bstillMoney}
+                               ,bback_reason=#{bbackReason}
+        where bid = #{bid}
+    </update>
+
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IBorrowStateDao">
+    <sql id="baseColum">
+        bsid,bsname
+    </sql>
+
+    <select id="selectBStateByPage" resultType="java.util.HashMap" parameterType="manageDateSet">
+        select
+            <include refid="baseColum"></include>
+            from borrow_state
+        <where>
+            <if test="ds.id!=null and ds.id!=''">
+                bsid = #{ds.id}
+            </if>
+            <if test="ds.name!=null and ds.name!=''">
+                and bsname = #{ds.name}
+            </if>
+        </where>
+        order by bsid
+    </select>
+
+
+    <select id="selectAllBorrowState" resultType="borrowState">
+        select <include refid="baseColum"></include>
+        from borrow_state
+    </select>
+
+    <insert id="addBorrowState" parameterType="borrowState">
+        insert into borrow_state(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{borrowState.bsname})
+    </insert>
+
+    <delete id="delBorrowState" parameterType="String">
+        delete from borrow_state where bsid in(
+        <foreach collection="bsids" item="bsid" separator=",">
+            #{bsid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updBorrowState" parameterType="borrowState">
+        update borrow_state set bsname=#{borrowState.bsname}
+        where bsid = #{borrowState.bsid}
+    </update>
+</mapper>

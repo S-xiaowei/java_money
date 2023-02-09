@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jxd.manage.dao.IReserveRecordDao">
+    <sql id="baseColum">
+        rid,bid,rsid,rmoney,rtime
+    </sql>
+    <select id="selectReserveByPage" resultType="java.util.HashMap" parameterType="reserveDateSet">
+        select rr.rid,rr.bid,rr.rmoney,rr.rtime,rs.rsname,br.bstill_money,br.bmoney,e.eid,e.ename,rr.rsid,d.dname,bs.bsname,rr.rback_reason
+        from reserve_state rs right  join reserve_record rr on rr.rsid = rs.rsid left join borrow_record br on br.bid = rr.bid left join
+        emp e on e.eid = br.eid left join borrow_state bs on br.bsid = bs.bsid left join dept d on d.did=e.did
+        <where>
+            <if test="ds.bid!=null and ds.bid!=''">
+                br.bid = #{ds.bid}
+            </if>
+            <if test="ds.eid!=null and ds.eid!=''">
+                and br.eid = #{ds.eid}
+            </if>
+            <if test="ds.rsid!=null and ds.rsid!=''">
+                and rr.rsid = #{ds.rsid}
+            </if>
+            <if test="ds.rtime!=null and ds.rtime!=''">
+                and rr.rtime = #{ds.rtime}
+            </if>
+            <if test="ds.did!=null and ds.did!=''">
+                and e.did = #{ds.did}
+            </if>
+        </where>
+        order by rr.rid desc
+    </select>
+
+    <select id="getReserveByRid" resultType="reserveRecord">
+        select <include refid="baseColum"></include>
+        form reserve_record
+        <where>
+            <if test="rid != null and rid != ''">
+                rid=#{rid}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addReserve" parameterType="reserveRecord">
+        insert into reserve_Record(
+        <include refid="baseColum"></include>
+        )
+        values (null,#{reserveRecord.bid},#{reserveRecord.rsid},#{reserveRecord.rmoney},#{reserveRecord.rtime})
+    </insert>
+
+    <delete id="delReserves" parameterType="list">
+        delete from reserve_record where rid in(
+        <foreach collection="rids" item="rid" separator=",">
+            #{rid}
+        </foreach>
+        )
+    </delete>
+
+    <update id="updReserve" parameterType="reserveRecord">
+        update reserve_record set rsid = #{reserveRecord.rsid},
+        rmoney=#{reserveRecord.rmoney},rtime=#{reserveRecord.rtime}
+                ,rback_reason=#{reserveRecord.rbackReason}
+        where rid = #{reserveRecord.rid}
+    </update>
+
+    <update id="updReserves" parameterType="reserveRecord">
+        update reserve_record
+        set rsid = #{reserveRecord.rsid}
+          ,rback_reason=#{reserveRecord.rbackReason}  where  rid = #{reserveRecord.rid}
+    </update>
+</mapper>
